@@ -40,7 +40,7 @@ module Kitchen
             execute("mkdir -p #{full_remote}") if recursive
             time = Benchmark.realtime do
               tar_command = "tar -C #{local} -c#{@logger.debug? ? 'v' : ''}f - ./"
-              untar_command = "tar --warning=no-unknown-keyword -C #{full_remote} -x#{@logger.debug? ? 'v' : ''}f -"
+              untar_command = "tar #{@logger.debug? ? '' : '--warning=none'} -C #{full_remote} -x#{@logger.debug? ? 'v' : ''}f -"
               ssh_command = [login_command.command, login_command.arguments].flatten.join(' ')
               sync_command = "#{tar_command} | #{ssh_command} '#{untar_command}'"
               @logger.debug("[SSH-TAR] Running ssh-tar command: #{sync_command}")

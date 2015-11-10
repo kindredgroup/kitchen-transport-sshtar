@@ -35,12 +35,20 @@ module Kitchen
       class Connection < Ssh::Connection
         def upload(locals, remote)
           Array(locals).each do |local|
-            full_remote = File.join(remote, File.basename(local))
             recursive = File.directory?(local)
-            execute("mkdir -p #{full_remote}") if recursive
-            time = Benchmark.realtime do
+            if recursive
+              full_remote = File.join(remote, File.basename(local))
               tar_command = "tar -C #{local} -c#{@logger.debug? ? 'v' : ''}f - ./"
               untar_command = "tar #{@logger.debug? ? '' : '--warning=none'} -C #{full_remote} -x#{@logger.debug? ? 'v' : ''}f -"
+              execute("mkdir -p #{full_remote}") if recursive
+            else
+              local_dir = File.dirname(local)
+              local_file = File.basename(local)
+              full_remote = remote
+              tar_command = "tar -C #{local_dir} -c#{@logger.debug? ? 'v' : ''} - #{local_file}"
+              untar_command = "tar #{@logger.debug? ? '' : '--warning=none'} -C #{full_remote} -x#{@logger.debug? ? 'v' : ''}f - #{local_file}"
+            end
+            time = Benchmark.realtime do
               ssh_command = [login_command.command, login_command.arguments].flatten.join(' ')
               sync_command = "#{tar_command} | #{ssh_command} '#{untar_command}'"
               @logger.debug("[SSH-TAR] Running ssh-tar command: #{sync_command}")

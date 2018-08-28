@@ -45,7 +45,7 @@ module Kitchen
               local_dir = File.dirname(local)
               local_file = File.basename(local)
               full_remote = remote
-              tar_command = "tar -C #{local_dir} -c#{@logger.debug? ? 'v' : ''} - #{local_file}"
+              tar_command = "tar -C #{local_dir} -c#{@logger.debug? ? 'v' : ''}f - #{local_file}"
               untar_command = "tar #{@logger.debug? ? '' : '--warning=none'} -C #{full_remote} -x#{@logger.debug? ? 'v' : ''}f - #{local_file}"
             end
             time = Benchmark.realtime do
